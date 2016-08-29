@@ -106,7 +106,7 @@ static UIColor *disabledColor;
         _coverView = [[UIView alloc] initWithFrame:self.bounds];
         _coverView.translatesAutoresizingMaskIntoConstraints = NO;
         _coverView.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
-        _coverView.backgroundColor = [UIColor colorWithRed:0.24 green:0.47 blue:0.85 alpha:0.6];
+        _coverView.backgroundColor = [UIColor colorWithRed:0.212 green:0.776 blue:1.000 alpha:0.6];
         [self addSubview:_coverView];
         _coverView.hidden = YES;
         
@@ -118,7 +118,7 @@ static UIColor *disabledColor;
         _selectedButton.translatesAutoresizingMaskIntoConstraints = NO;
         _selectedButton.autoresizingMask = UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth;
         [_selectedButton setImage:[UIImage imageNamed:@"GMSelected" inBundle:[NSBundle bundleForClass:GMGridViewCell.class] compatibleWithTraitCollection:nil] forState:UIControlStateSelected];
-        _selectedButton.hidden = NO;
+        _selectedButton.hidden = YES;
         _selectedButton.userInteractionEnabled = NO;
         [self addSubview:_selectedButton];
     }
@@ -160,6 +160,10 @@ static UIColor *disabledColor;
         return;
     }
     
+    self.layer.borderWidth = selected ? 2 : 0.5;
+    self.layer.borderColor = selected
+        ? [[UIColor colorWithRed:0.212 green:0.776 blue:1.000 alpha:1.0] CGColor]
+        : UIColor.whiteColor.CGColor;
     _coverView.hidden = !selected;
     _selectedButton.selected = selected;
 }

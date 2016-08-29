@@ -83,10 +83,9 @@
     // Ensure nav and toolbar customisations are set. Defaults are in place, but the user may have changed them
     self.view.backgroundColor = _pickerBackgroundColor;
 
-    _navigationController.toolbar.translucent = YES;
+    _navigationController.toolbar.translucent = NO;
     _navigationController.toolbar.barTintColor = _toolbarBarTintColor;
     _navigationController.toolbar.tintColor = _toolbarTintColor;
-    [(UIView*)[_navigationController.toolbar.subviews objectAtIndex:0] setAlpha:0.75f];  // URGH - I know!
     
     _navigationController.navigationBar.backgroundColor = _navigationBarBackgroundColor;
     _navigationController.navigationBar.tintColor = _navigationBarTintColor;
@@ -115,7 +114,7 @@
     _navigationController = [[UINavigationController alloc] initWithRootViewController:albumsViewController];
     _navigationController.delegate = self;
     
-    _navigationController.navigationBar.translucent = YES;
+    _navigationController.navigationBar.translucent = NO;
     [_navigationController.navigationBar setBackgroundImage:[UIImage new] forBarMetrics:UIBarMetricsDefault];
     _navigationController.navigationBar.shadowImage = [UIImage new];
     
@@ -201,7 +200,7 @@
         [[viewController.toolbarItems objectAtIndex:index] setTitleTextAttributes:[self toolbarTitleTextAttributes] forState:UIControlStateNormal];
         [[viewController.toolbarItems objectAtIndex:index] setTitleTextAttributes:[self toolbarTitleTextAttributes] forState:UIControlStateDisabled];
         [[viewController.toolbarItems objectAtIndex:index] setTitle:[self toolbarTitle]];
-        [viewController.navigationController setToolbarHidden:(self.selectedAssets.count == 0 && !self.showCameraButton) animated:YES];
+        [viewController.navigationController setToolbarHidden:(self.showCameraButton) animated:YES];
     }
 }
 
@@ -238,7 +237,7 @@
 - (NSString *)toolbarTitle
 {
     if (self.selectedAssets.count == 0) {
-        return nil;
+        return @"0";
     }
     
     NSPredicate *photoPredicate = [self predicateOfAssetType:PHAssetMediaTypeImage];
@@ -253,12 +252,10 @@
         return [NSString stringWithFormat:NSLocalizedStringFromTableInBundle(@"picker.selection.multiple-photos",  @"GMImagePicker", [NSBundle bundleForClass:GMImagePickerController.class],  @"%@ Photos Selected"), @(nImages)];
     } else if (nImages == 1) {
         return NSLocalizedStringFromTableInBundle(@"picker.selection.single-photo",  @"GMImagePicker", [NSBundle bundleForClass:GMImagePickerController.class],  @"1 Photo Selected" );
-    } else if (nVideos > 1) {
-        return [NSString stringWithFormat:NSLocalizedStringFromTableInBundle(@"picker.selection.multiple-videos",  @"GMImagePicker", [NSBundle bundleForClass:GMImagePickerController.class],  @"%@ Videos Selected"), @(nVideos)];
-    } else if (nVideos == 1) {
-        return NSLocalizedStringFromTableInBundle(@"picker.selection.single-video",  @"GMImagePicker", [NSBundle bundleForClass:GMImagePickerController.class],  @"1 Video Selected");
+    } else if (nVideos >= 1) {
+        return [NSString stringWithFormat:@"%@", @(nVideos)];
     } else {
-        return nil;
+        return @"0";
     }
 }
 
@@ -327,9 +324,39 @@
     return [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemCamera target:self action:@selector(cameraButtonPressed:)];
 }
 
+- (UIBarButtonItem *)allButtonItem
+{
+    UIBarButtonItem *all = [[UIBarButtonItem alloc] initWithTitle:@"all"
+                                                              style:UIBarButtonItemStylePlain
+                                                             target:self
+                                                             action:@selector(clearSelection)];
+    
+    NSDictionary *attributes = [self toolbarTitleTextAttributes];
+    [all setTitleTextAttributes:attributes forState:UIControlStateNormal];
+    [all setTitleTextAttributes:attributes forState:UIControlStateDisabled];
+    [all setEnabled:NO];
+
+    return all;
+}
+- (UIBarButtonItem *)clearButtonItem
+{
+    UIBarButtonItem *clear = [[UIBarButtonItem alloc] initWithTitle:@"CLEAR"
+                                                              style:UIBarButtonItemStylePlain
+                                                             target:self
+                                                             action:@selector(clearSelection)];
+    
+    NSDictionary *attributes = [self toolbarTitleTextAttributes];
+    [clear setTitleTextAttributes:attributes forState:UIControlStateNormal];
+    [clear setTitleTextAttributes:attributes forState:UIControlStateDisabled];
+    [clear setEnabled:NO];
+    return clear;
+}
+
 - (NSArray *)toolbarItems
 {
     UIBarButtonItem *camera = [self cameraButtonItem];
+    UIBarButtonItem *all  = [self allButtonItem];
+    UIBarButtonItem *clear  = [self clearButtonItem];
     UIBarButtonItem *title  = [self titleButtonItem];
     UIBarButtonItem *space  = [self spaceButtonItem];
     
@@ -337,9 +364,12 @@
     if (_showCameraButton) {
         [items addObject:camera];
     }
+
+    //[items addObject:all];
     [items addObject:space];
     [items addObject:title];
     [items addObject:space];
+    //[items addObject:clear];
     
     return [NSArray arrayWithArray:items];
 }

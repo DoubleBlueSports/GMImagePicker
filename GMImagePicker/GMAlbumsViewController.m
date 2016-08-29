@@ -44,7 +44,7 @@ static NSString * const CollectionCellReuseIdentifier = @"CollectionCell";
 {
     [super viewDidLoad];
     
-    self.view.backgroundColor = [self.picker pickerBackgroundColor];
+    self.view.backgroundColor = [UIColor clearColor];
 
     // Navigation bar customization
     if (self.picker.customNavigationBarPrompt) {
@@ -55,7 +55,8 @@ static NSString * const CollectionCellReuseIdentifier = @"CollectionCell";
     
     // Table view aspect
     self.tableView.rowHeight = kAlbumRowHeight;
-    self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
+    self.tableView.separatorStyle = UITableViewCellSeparatorStyleSingleLine;
+    self.tableView.separatorColor = [UIColor colorWithRed:0.925 green:0.925 blue:0.925 alpha: 1];
 
     // Buttons
     NSDictionary* barButtonItemAttributes = @{NSFontAttributeName: [UIFont fontWithName:self.picker.pickerFontName size:self.picker.pickerFontHeaderSize]};
@@ -104,11 +105,6 @@ static NSString * const CollectionCellReuseIdentifier = @"CollectionCell";
     
     // Register for changes
     [[PHPhotoLibrary sharedPhotoLibrary] registerChangeObserver:self];
-    
-    if ([self respondsToSelector:@selector(setEdgesForExtendedLayout:)])
-    {
-        self.edgesForExtendedLayout = UIRectEdgeNone;
-    }
 }
 
 - (void)dealloc
@@ -196,8 +192,8 @@ static NSString * const CollectionCellReuseIdentifier = @"CollectionCell";
         }
     }
     
-    self.collectionsFetchResultsAssets= @[allFetchResultArray,userFetchResultArray,smartFetchResultArray];
-    self.collectionsFetchResultsTitles= @[allFetchResultLabel,userFetchResultLabel,smartFetchResultLabel];
+     self.collectionsFetchResultsAssets = @[[[allFetchResultArray arrayByAddingObjectsFromArray:userFetchResultArray] arrayByAddingObjectsFromArray:smartFetchResultArray]];
+    self.collectionsFetchResultsTitles= @[[[allFetchResultLabel arrayByAddingObjectsFromArray:userFetchResultLabel] arrayByAddingObjectsFromArray:smartFetchResultLabel]];
 }
 
 
@@ -226,7 +222,7 @@ static NSString * const CollectionCellReuseIdentifier = @"CollectionCell";
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
 {
-    return self.collectionsFetchResultsAssets.count;
+    return 1;
 }
 
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
@@ -243,6 +239,7 @@ static NSString * const CollectionCellReuseIdentifier = @"CollectionCell";
     if (cell == nil) {
         cell = [[GMAlbumsViewCell alloc] initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:CellIdentifier];
         cell.accessoryType = UITableViewCellAccessoryDisclosureIndicator;
+        cell.accessoryView = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"icon-disclosure-blue"]];
     }
     
     // Increment the cell's tag
@@ -318,9 +315,9 @@ static NSString * const CollectionCellReuseIdentifier = @"CollectionCell";
         }
     } else {
         [cell setVideoLayout:NO];
-        cell.imageView3.image = [UIImage imageNamed:@"GMEmptyFolder"];
-        cell.imageView2.image = [UIImage imageNamed:@"GMEmptyFolder"];
-        cell.imageView1.image = [UIImage imageNamed:@"GMEmptyFolder"];
+        cell.imageView3.image = [UIImage imageNamed:@"EmptyFolder"];
+        cell.imageView2.image = [UIImage imageNamed:@"EmptyFolder"];
+        cell.imageView1.image = [UIImage imageNamed:@"EmptyFolder"];
     }
     
     return cell;
@@ -349,8 +346,8 @@ static NSString * const CollectionCellReuseIdentifier = @"CollectionCell";
 -(void)tableView:(UITableView *)tableView willDisplayHeaderView:(UIView *)view forSection:(NSInteger)section
 {
     UITableViewHeaderFooterView *header = (UITableViewHeaderFooterView *)view;
-    header.contentView.backgroundColor = [UIColor clearColor];
-    header.backgroundView.backgroundColor = [UIColor clearColor];
+    header.contentView.backgroundColor = [UIColor whiteColor];
+    header.backgroundView.backgroundColor = [UIColor whiteColor];
 
     // Default is a bold font, but keep this styled as a normal font
     header.textLabel.font = [UIFont fontWithName:self.picker.pickerFontName size:self.picker.pickerFontNormalSize];
